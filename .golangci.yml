@@ -1,0 +1,21 @@
+linters:
+  disable:
+    - contextcheck
+    - deadcode
+    - exhaustivestruct
+    - exhaustruct
+    - gci
+    - goerr113
+    - golint
+    - ifshort
+    - interfacer
+    - lll
+    - maligned
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - varcheck
+    - varnamelen
+    - wrapcheck
+    - wsl
+  enable-all: true

@@ -2,13 +2,13 @@ package mock
 
 import (
 	"github.com/aws/aws-sdk-go/service/rds"
-	ops_aws_cli "ops-aws-cli"
+	opsaws "github.com/bpike0612/ops-aws"
 )
 
 // This ensures the MockDb type implements the rdsAPI interface via a compiler check,
 // even if it is not used elsewhere. You can read more on this pattern on the effective go site.
 // https://golang.org/doc/effective_go#blank_implements
-var _ ops_aws_cli.RDS = (*MockDb)(nil)
+var _ opsaws.RDS = (*MockDb)(nil)
 
 type MockDb struct {
 	DescribeAllEndpointsFn func(epType string) ([]byte, error)
