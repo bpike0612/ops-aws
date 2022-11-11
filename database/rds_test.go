@@ -9,8 +9,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"ops-aws-cli/database"
-	"ops-aws-cli/mock"
+	"github.com/bpike0612/ops-aws/database"
+	"github.com/bpike0612/ops-aws/mock"
 )
 
 func Test_awsRDS_DescribeEndpoint(t *testing.T) {

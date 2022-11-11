@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/aws/aws-sdk-go/service/kms"
+	opsKms "github.com/bpike0612/ops-aws/kms"
+	"github.com/bpike0612/ops-aws/mock"
 	"github.com/stretchr/testify/assert"
-	opsKms "ops-aws-cli/kms"
-	"ops-aws-cli/mock"
 	"testing"
 )
 

@@ -2,10 +2,10 @@ package mock
 
 import (
 	"github.com/aws/aws-sdk-go/service/kms"
-	ops_aws_cli "ops-aws-cli"
+	opsaws "github.com/bpike0612/ops-aws"
 )
 
-var _ ops_aws_cli.Decrypter = (*MockKMS)(nil)
+var _ opsaws.Decrypter = (*MockKMS)(nil)
 
 type MockKMS struct {
 	DecodeDataFn func(data string) ([]byte, error)
