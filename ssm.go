@@ -1,4 +1,4 @@
-package ops_aws
+package opsaws
 
 type SSM interface {
 	GetParameters() error

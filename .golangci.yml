@@ -12,10 +12,13 @@ linters:
     - lll
     - maligned
     - nosnakecase
+    - rowserrcheck
     - scopelint
+    - sqlclosecheck
     - structcheck
     - varcheck
     - varnamelen
+    - wastedassign
     - wrapcheck
     - wsl
   enable-all: true

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
@@ -19,7 +20,8 @@ type awsSSM struct {
 	filter []*ssm.ParameterStringFilter
 }
 
-func NewSsmClient(client ssmAPI) *awsSSM {
+// NewSsmClient returns awsSSM.
+func NewSsmClient(client ssmAPI) *awsSSM { //nolint:revive
 	if client != nil {
 		return &awsSSM{client: client}
 	}
@@ -34,38 +36,43 @@ func NewSsmClient(client ssmAPI) *awsSSM {
 
 	// Create SSM service client
 	svc := ssm.New(sess)
+
 	return &awsSSM{client: svc}
 }
 
 func (s *awsSSM) Get(filters []*ssm.ParameterStringFilter) error {
 	input := ssm.DescribeParametersInput{
 		Filters:          nil,
-		MaxResults:       aws.Int64(10),
+		MaxResults:       aws.Int64(10), //nolint:gomnd
 		NextToken:        nil,
 		ParameterFilters: filters,
 	}
 	output, err := s.client.DescribeParameters(&input)
 	if err != nil {
-		fmt.Printf("unable to describe pareters, %v\n", err)
+		err := fmt.Errorf("unable to desribe parameters, %w", err)
+
 		return err
 	}
-	fmt.Print(output)
+	fmt.Print(output) //nolint
+
 	return nil
 }
 
 func (s *awsSSM) GetParameters() error {
 	input := ssm.DescribeParametersInput{
 		Filters:          nil,
-		MaxResults:       aws.Int64(10),
+		MaxResults:       aws.Int64(10), //nolint:gomnd
 		NextToken:        nil,
 		ParameterFilters: s.filter,
 	}
 	output, err := s.client.DescribeParameters(&input)
 	if err != nil {
-		fmt.Printf("unable to describe pareters, %v\n", err)
+		err := fmt.Errorf("unable to describe parameters, %w", err)
+
 		return err
 	}
-	fmt.Print(output)
+	fmt.Print(output) //nolint
+
 	return nil
 }
 
@@ -74,16 +81,23 @@ func (s *awsSSM) WithParameterFilters(key string, values []string) *awsSSM {
 	var filters []*ssm.ParameterStringFilter
 	filter.SetKey(key)
 	filter.SetValues(aws.StringSlice(values))
-	filters = append(filters, &filter)
+	filters = append(filters, &filter) //nolint:ineffassign,staticcheck
+
 	return s
 }
 
 func With(key string, values []string) []*ssm.ParameterStringFilter {
 	var filter ssm.ParameterStringFilter
 	var filters []*ssm.ParameterStringFilter
-	filter.SetKey(key)
-	filter.SetValues(aws.StringSlice(values))
-	filters = append(filters, &filter)
+	// filter.SetKey(key)
+	// filter.SetValues(aws.StringSlice(values))
+	for i := range values {
+		filter.SetKey(key)
+		filter.SetValues(aws.StringSlice(values))
+		filters[i] = &filter
+	}
+	// filters = append(filters, &filter)
+
 	return filters
 }
 
@@ -93,7 +107,7 @@ func With(key string, values []string) []*ssm.ParameterStringFilter {
 // name can't be in the path. A parameter name hierarchy can have a maximum of 15 levels.
 func (s *awsSSM) GetParameterByPath(path string) ([]byte, error) {
 	input := ssm.GetParametersByPathInput{
-		MaxResults: aws.Int64(10),
+		MaxResults: aws.Int64(10), //nolint:gomnd
 		Path:       aws.String(path),
 		Recursive:  aws.Bool(true),
 	}
@@ -101,14 +115,17 @@ func (s *awsSSM) GetParameterByPath(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(out.Parameters) <= 0 {
+	if len(out.Parameters) == 0 {
 		err := fmt.Sprintf("no results found for path, %s", path)
+
 		return nil, errors.New(err)
 	}
 	b, err := json.Marshal(&out)
 	if err != nil {
-		fmt.Printf("error marshalling json, %v", err)
+		err := fmt.Errorf("error marshalling json, %w", err)
+
 		return nil, err
 	}
+
 	return b, nil
 }

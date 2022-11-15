@@ -5,13 +5,13 @@ import (
 	opsaws "github.com/bpike0612/ops-aws"
 )
 
-var _ opsaws.Decrypter = (*MockKMS)(nil)
+var _ opsaws.Decrypter = (*KMS)(nil)
 
-type MockKMS struct {
+type KMS struct {
 	DecodeDataFn func(data string) ([]byte, error)
 }
 
-func (m *MockKMS) DecodeData(data string) ([]byte, error) {
+func (m *KMS) DecodeData(data string) ([]byte, error) {
 	return m.DecodeDataFn(data)
 }
 
