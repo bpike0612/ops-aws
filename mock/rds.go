@@ -5,26 +5,26 @@ import (
 	opsaws "github.com/bpike0612/ops-aws"
 )
 
-// This ensures the MockDb type implements the rdsAPI interface via a compiler check,
+// This ensures the DB type implements the rdsAPI interface via a compiler check,
 // even if it is not used elsewhere. You can read more on this pattern on the effective go site.
 // https://golang.org/doc/effective_go#blank_implements
-var _ opsaws.RDS = (*MockDb)(nil)
+var _ opsaws.RDS = (*DB)(nil)
 
-type MockDb struct {
+type DB struct {
 	DescribeAllEndpointsFn func(epType string) ([]byte, error)
 	ListDBIdentifiersFn    func() ([]byte, error)
 	DescribeEndpointFn     func(clusterName string, epType string) ([]byte, error)
 }
 
-func (mdb *MockDb) DescribeAllEndpoints(epType string) ([]byte, error) {
+func (mdb *DB) DescribeAllEndpoints(epType string) ([]byte, error) {
 	return mdb.DescribeAllEndpointsFn(epType)
 }
 
-func (mdb *MockDb) ListDBIdentifiers() ([]byte, error) {
+func (mdb *DB) ListDBIdentifiers() ([]byte, error) {
 	return mdb.ListDBIdentifiersFn()
 }
 
-func (mdb *MockDb) DescribeEndpoint(clusterName string, epType string) ([]byte, error) {
+func (mdb *DB) DescribeEndpoint(clusterName string, epType string) ([]byte, error) {
 	return mdb.DescribeEndpointFn(clusterName, epType)
 }
 

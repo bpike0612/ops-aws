@@ -1,4 +1,4 @@
-package ops_aws
+package opsaws
 
 type RDS interface {
 	DescribeAllEndpoints(epType string) ([]byte, error)

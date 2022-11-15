@@ -3,9 +3,10 @@ package database_test
 import (
 	"encoding/json"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/rds"
@@ -14,6 +15,7 @@ import (
 )
 
 func Test_awsRDS_DescribeEndpoint(t *testing.T) {
+	t.Parallel()
 	mockEndpntRsp := rds.DescribeDBClusterEndpointsOutput{
 		DBClusterEndpoints: []*rds.DBClusterEndpoint{
 			{
@@ -27,43 +29,46 @@ func Test_awsRDS_DescribeEndpoint(t *testing.T) {
 			return &mockEndpntRsp, nil
 		},
 	}
-	want, err := json.Marshal(&mockEndpntRsp)
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.DescribeEndpoint("mock-db-cluster", database.WriterEndPointType)
+	want, err := json.Marshal(&mockEndpntRsp) //nolint:ineffassign,staticcheck
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.DescribeEndpoint("mock-db-cluster", database.WriterEndPointType)
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)
 }
 
 func Test_awsRDS_UnableToDescribeEndpoint(t *testing.T) {
+	t.Parallel()
 	mockClient := mock.RdsAPI{
 		DescribeDBClusterEndpointsFn: func(input *rds.DescribeDBClusterEndpointsInput) (*rds.DescribeDBClusterEndpointsOutput, error) {
 			return nil, errors.New("mock error")
 		},
 	}
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.DescribeEndpoint("mock-db-cluster", database.WriterEndPointType)
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.DescribeEndpoint("mock-db-cluster", database.WriterEndPointType)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "unable to describe endpoint, mock error")
 	assert.Nil(t, got)
 }
 
 func Test_awsRDS_UnableToDescribeInstances(t *testing.T) {
+	t.Parallel()
 	mockClient := mock.RdsAPI{
 		DescribeDBInstancesFn: func(input *rds.DescribeDBInstancesInput) (*rds.DescribeDBInstancesOutput, error) {
 			return nil, errors.New("mock error")
 		},
 	}
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.DescribeAllEndpoints(database.WriterEndPointType)
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.DescribeAllEndpoints(database.WriterEndPointType)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "unable to list instances, mock error")
 	assert.Nil(t, got)
 }
 
 func Test_awsRDS_DescribeWriterInstances(t *testing.T) {
+	t.Parallel()
 	mockInstRsp := rds.DescribeDBInstancesOutput{
 		DBInstances: []*rds.DBInstance{
 			{
@@ -90,15 +95,16 @@ func Test_awsRDS_DescribeWriterInstances(t *testing.T) {
 			return &mockEndpntRsp, nil
 		},
 	}
-	want, err := json.Marshal(&mockEndpntRsp.DBClusterEndpoints)
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.DescribeAllEndpoints(database.WriterEndPointType)
+	want, err := json.Marshal(&mockEndpntRsp.DBClusterEndpoints) //nolint:ineffassign,staticcheck
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.DescribeAllEndpoints(database.WriterEndPointType)
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)
 }
 
 func Test_awsRDS_UnableToDescribeClusterEndpoints(t *testing.T) {
+	t.Parallel()
 	mockInstRsp := rds.DescribeDBInstancesOutput{
 		DBInstances: []*rds.DBInstance{
 			{
@@ -117,15 +123,16 @@ func Test_awsRDS_UnableToDescribeClusterEndpoints(t *testing.T) {
 			return nil, errors.New("mock error")
 		},
 	}
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.DescribeAllEndpoints(database.WriterEndPointType)
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.DescribeAllEndpoints(database.WriterEndPointType)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "unable to describe endpoints, mock error")
 	assert.Nil(t, got)
 }
 
 func Test_awsRDS_ListDBIdentifiers(t *testing.T) {
+	t.Parallel()
 	mockCreateTime := time.Date(
 		2020, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	mockInstRsp := rds.DescribeDBInstancesOutput{
@@ -146,22 +153,23 @@ func Test_awsRDS_ListDBIdentifiers(t *testing.T) {
 		},
 	}
 	want := []byte(`[{"identifier":"mock-db-test","createdAt":"2020-11-17T20:34:58.651387237Z"}]`)
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.ListDBIdentifiers()
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.ListDBIdentifiers()
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)
 }
 
 func Test_awsRDS_UnableToListDBIdentifiers(t *testing.T) {
+	t.Parallel()
 	mockClient := mock.RdsAPI{
 		DescribeDBInstancesFn: func(input *rds.DescribeDBInstancesInput) (*rds.DescribeDBInstancesOutput, error) {
 			return nil, errors.New("mock error")
 		},
 	}
-	mockApi := database.NewRds(&mockClient)
-	assert.NotNil(t, mockApi)
-	got, err := mockApi.ListDBIdentifiers()
+	mockAPI := database.NewRds(&mockClient)
+	assert.NotNil(t, mockAPI)
+	got, err := mockAPI.ListDBIdentifiers()
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "unable to list instances, mock error")
 	assert.Nil(t, got)

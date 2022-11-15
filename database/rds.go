@@ -27,7 +27,7 @@ type awsRDS struct {
 }
 
 // NewRds accepts an rdsAPI interface and returns an awsRDS.
-func NewRds(client rdsAPI) *awsRDS {
+func NewRds(client rdsAPI) *awsRDS { //nolint:revive
 	if client != nil {
 		return &awsRDS{client: client}
 	}
@@ -42,11 +42,12 @@ func NewRds(client rdsAPI) *awsRDS {
 
 	// Create RDS service client
 	svc := rds.New(sess)
+
 	return &awsRDS{client: svc}
 }
 
 // DescribeEndpoint will return information for a provisioned RDS instance using the cluster name
-// and type
+// and type.
 func (r *awsRDS) DescribeEndpoint(clusterName string, epType string) ([]byte, error) {
 	filters := []*rds.Filter{
 		{
@@ -59,24 +60,28 @@ func (r *awsRDS) DescribeEndpoint(clusterName string, epType string) ([]byte, er
 		Filters:             filters,
 	})
 	if err != nil {
-		err := fmt.Sprintf("unable to describe endpoint, %v", err)
-		return nil, errors.New(err)
+		err := fmt.Errorf("unable to describe endpoint, %w", err)
+
+		return nil, err
 	}
 	b, err := json.Marshal(&output)
 	if err != nil {
-		fmt.Printf("error marshalling json, %v", err)
+		err := fmt.Errorf("error marshalling json, %w", err)
+
 		return nil, err
 	}
+
 	return b, nil
 }
 
 // DescribeAllEndpoints returns the URL for all provisioned RDS instances and filters on type
 // epType can be either a "writer" or a "reader".
 func (r *awsRDS) DescribeAllEndpoints(epType string) ([]byte, error) {
-	var endpoints []*rds.DBClusterEndpoint
+	endpoints := make([]*rds.DBClusterEndpoint, 0)
 	result, err := r.client.DescribeDBInstances(nil)
 	if err != nil {
 		err := fmt.Sprintf("unable to list instances, %v", err)
+
 		return nil, errors.New(err)
 	}
 	filters := []*rds.Filter{
@@ -92,15 +97,18 @@ func (r *awsRDS) DescribeAllEndpoints(epType string) ([]byte, error) {
 		})
 		if err != nil {
 			err := fmt.Sprintf("unable to describe endpoints, %v", err)
+
 			return nil, errors.New(err)
 		}
 		endpoints = append(endpoints, output.DBClusterEndpoints[0])
 	}
 	b, err := json.Marshal(&endpoints)
 	if err != nil {
-		fmt.Printf("error marshalling json, %v", err)
+		err := fmt.Errorf("error marshalling json, %w", err)
+
 		return nil, err
 	}
+
 	return b, nil
 }
 
@@ -112,16 +120,24 @@ type instance struct {
 // ListDBIdentifiers Returns the identifier and created date/time for provisioned RDS instances.
 // This method does not currently support pagination. However, the AWS API does.
 func (r *awsRDS) ListDBIdentifiers() ([]byte, error) {
+	/*
+		to := make([]string, len(s.To))
+		for i, t := range s.To {
+		    to[i] = t.String()
+		}
+	*/
 	var inst instance
-	var instances []instance
+	instances := make([]instance, 0)
 	result, err := r.client.DescribeDBInstances(nil)
 	if err != nil {
 		err := fmt.Sprintf("unable to list instances, %v", err)
+
 		return nil, errors.New(err)
 	}
 	for _, d := range result.DBInstances {
 		if err != nil {
 			err := fmt.Sprintf("unable to describe endpoints, %v", err)
+
 			return nil, errors.New(err)
 		}
 		inst.Identifier = aws.StringValue(d.DBInstanceIdentifier)
@@ -130,8 +146,10 @@ func (r *awsRDS) ListDBIdentifiers() ([]byte, error) {
 	}
 	b, err := json.Marshal(&instances)
 	if err != nil {
-		fmt.Printf("error marshalling json, %v", err)
+		err := fmt.Errorf("error marshalling json, %w", err)
+
 		return nil, err
 	}
+
 	return b, nil
 }

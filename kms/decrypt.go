@@ -3,6 +3,7 @@ package kms
 import (
 	"encoding/base64"
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
@@ -16,7 +17,8 @@ type awsKMS struct {
 	client kmsAPI
 }
 
-func NewKmsClient(client kmsAPI) *awsKMS {
+// NewKmsClient returns awsKMS.
+func NewKmsClient(client kmsAPI) *awsKMS { //nolint:revive
 	if client != nil {
 		return &awsKMS{client: client}
 	}
@@ -31,13 +33,15 @@ func NewKmsClient(client kmsAPI) *awsKMS {
 
 	// Create KMS service client
 	svc := kms.New(sess)
+
 	return &awsKMS{client: svc}
 }
 
 func (k *awsKMS) DecodeData(data string) ([]byte, error) {
 	blob, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		fmt.Printf("issue decoding, %v\n", err)
+		err := fmt.Errorf("issue decoding, %w", err)
+
 		return nil, err
 	}
 	input := kms.DecryptInput{
@@ -45,8 +49,10 @@ func (k *awsKMS) DecodeData(data string) ([]byte, error) {
 	}
 	output, err := k.client.Decrypt(&input)
 	if err != nil {
-		fmt.Printf("unable to decrypt blob, %v\n", err)
+		err := fmt.Errorf("unable to decrypt blob, %w", err)
+
 		return nil, err
 	}
+
 	return output.Plaintext, nil
 }
