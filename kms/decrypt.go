@@ -40,7 +40,7 @@ func NewKmsClient(client kmsAPI) *awsKMS { //nolint:revive
 func (k *awsKMS) DecodeData(data string) ([]byte, error) {
 	blob, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		err := fmt.Errorf("issue decoding, %w", err)
+		err := fmt.Errorf("error decoding, %w", err)
 
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (k *awsKMS) DecodeData(data string) ([]byte, error) {
 	}
 	output, err := k.client.Decrypt(&input)
 	if err != nil {
-		err := fmt.Errorf("unable to decrypt blob, %w", err)
+		err := fmt.Errorf("error unable to decrypt blob, %w", err)
 
 		return nil, err
 	}
