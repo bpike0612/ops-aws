@@ -76,6 +76,7 @@ func (s *awsSSM) GetParameters() error {
 	return nil
 }
 
+/*
 func (s *awsSSM) WithParameterFilters(key string, values []string) *awsSSM {
 	var filter ssm.ParameterStringFilter
 	var filters []*ssm.ParameterStringFilter
@@ -85,6 +86,7 @@ func (s *awsSSM) WithParameterFilters(key string, values []string) *awsSSM {
 
 	return s
 }
+*/
 
 func With(key string, values []string) []*ssm.ParameterStringFilter {
 	var filter ssm.ParameterStringFilter
