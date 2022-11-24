@@ -22,7 +22,7 @@ func Test_kmsDecryptUnableToDecrypt(t *testing.T) {
 	assert.NotNil(t, mockAPI)
 	got, err := mockAPI.DecodeData("")
 	assert.NotNil(t, err)
-	assert.EqualError(t, err, "unable to decrypt blob, mock error")
+	assert.EqualError(t, err, "error unable to decrypt blob, mock error")
 	assert.Nil(t, got)
 }
 
