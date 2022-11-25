@@ -9,7 +9,3 @@ func TestAwsSSM_Get(t *testing.T) {
 func TestAwsSSM_GetParameters(t *testing.T) {
 	t.Parallel()
 }
-
-func TestAwsSSM_GetParameterByPath(t *testing.T) {
-	t.Parallel()
-}
